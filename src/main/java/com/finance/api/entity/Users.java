@@ -8,8 +8,8 @@ import java.util.List;
 @Getter @Setter
 @Entity
 @Table(name="users")
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @ToString(exclude="id")
 public class Users {
     @Id
@@ -37,4 +37,5 @@ public class Users {
 
     @OneToMany(mappedBy = "user")
     private List<Report> reports;
+
 }

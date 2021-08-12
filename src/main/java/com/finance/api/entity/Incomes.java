@@ -28,7 +28,7 @@ public class Incomes {
     @Column(name="confirmed_date")
     private LocalDate confirmedDate;
 
-    @Column(name="confirmed_value" , nullable = false)
+    @Column(name="confirmed_value")
     private Integer confirmedValue;
 
     @ManyToOne
