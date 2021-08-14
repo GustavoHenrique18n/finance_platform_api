@@ -9,7 +9,4 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface UsersRepository extends JpaRepository<Users , Long> {
-    @Query("SELECT * FROM Users")
-    Optional<Users> queryTest (Users s);
-}
+public interface UsersRepository extends JpaRepository<Users , Long> { }

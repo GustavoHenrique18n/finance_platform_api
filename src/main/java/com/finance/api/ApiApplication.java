@@ -1,22 +1,25 @@
 package com.finance.api;
 
+import com.finance.api.entity.Expenses;
 import com.finance.api.entity.Incomes;
 import com.finance.api.entity.IncomesType;
 import com.finance.api.entity.Users;
+import com.finance.api.repository.ExpensesRepository;
 import com.finance.api.repository.IncomesRepository;
 import com.finance.api.repository.IncomesTypeRepository;
 import com.finance.api.repository.UsersRepository;
+import com.finance.api.service.FinanceService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
-import java.time.LocalDate;
+
+import java.util.List;
 
 @SpringBootApplication
 public class ApiApplication {
-
-
 
 	public static void main(String[] args) {
 		SpringApplication.run(ApiApplication.class, args);
@@ -26,33 +29,14 @@ public class ApiApplication {
 
 	@Bean
 	CommandLineRunner commandLineRunner(
-			IncomesRepository  incomesRepository ,
-			UsersRepository usersRepository,
-			IncomesTypeRepository incomesTypeRepository
+			IncomesRepository  incomesRepository
 	){
 		return args -> {
 
-			IncomesType type = new IncomesType();
-			type.setIsActive(true);
-			type.setCategorieName("casa");
 
-			Users gustavo = new Users();
-			gustavo.setId(6L);
-			gustavo.setEmail("joao@");
-			gustavo.setName("joao");
-			gustavo.setPassword("a1212dad");
+			 List<Incomes> income = incomesRepository.userFinanceIncome(6);
 
-			Incomes income = new Incomes();
-			income.setNameIncome("outro valor do 6");
-			LocalDate local = LocalDate.now();
-			income.setPreviewDate(local);
-			income.setPreviewValue(100);
-			income.setUser(gustavo);
-			income.setCategorieIncome(type);
 
-			System.out.println(type);
-			System.out.println(gustavo);
-			System.out.println(income);
 
 		};
 	}
