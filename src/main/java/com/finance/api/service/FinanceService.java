@@ -1,37 +1,31 @@
 package com.finance.api.service;
 
 import com.finance.api.FinanceReference;
-import com.finance.api.entity.Expenses;
-import com.finance.api.entity.Incomes;
-import com.finance.api.entity.IncomesType;
-import com.finance.api.repository.ExpensesRepository;
-import com.finance.api.repository.ExpensesTypesRepository;
-import com.finance.api.repository.IncomesRepository;
-import com.finance.api.repository.IncomesTypeRepository;
+import com.finance.api.entity.*;
+import com.finance.api.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public class FinanceService {
     private final IncomesRepository incomesRepository;
     private final ExpensesRepository expensesRepository;
     private final ExpensesTypesRepository expensesTypesRepository;
     private final IncomesTypeRepository incomesTypeRepository;
-
-    SimpleDateFormat formarter = new SimpleDateFormat("dd-MM-yyyy");
+    private final UsersRepository usersRepository;
 
     @Autowired
     public FinanceService(IncomesRepository incomesRepository,
                           ExpensesRepository expensesRepository,
                           ExpensesTypesRepository expensesTypesRepository,
-                          IncomesTypeRepository incomesTypeRepository
-    ) {
+                          IncomesTypeRepository incomesTypeRepository,
+                          UsersRepository usersRepository) {
         this.incomesRepository = incomesRepository;
         this.expensesRepository = expensesRepository;
         this.expensesTypesRepository = expensesTypesRepository;
         this.incomesTypeRepository = incomesTypeRepository;
+        this.usersRepository = usersRepository;
     }
 
     public FinanceReference getTotalOfFinance(Long id) {
@@ -65,32 +59,46 @@ public class FinanceService {
     }
 
     public List<Incomes> getIncomes(Long id) {
-        List<Incomes> income = incomesRepository.userFinanceIncome(id);
-        for(Incomes i : income) {
-            if(i.getConfirmedDate() != null) {
-                String formatedDateConfirmed = formarter.format(i.getConfirmedDate());
-                LocalDate convertStringToDate = LocalDate.parse(formatedDateConfirmed);
-                i.setConfirmedDate(convertStringToDate);
-            }
-                String formatedPreview = formarter.format(i.getPreviewDate());
-                LocalDate convertStringToDate = LocalDate.parse(formatedPreview);
-                i.setPreviewDate(convertStringToDate);
-          }
-        return income;
+        return incomesRepository.userFinanceIncome(id);
     }
 
     public List<Expenses> getExpenses(Long id) {
         return expensesRepository.userFinanceExpense(id);
     }
 
-    public void createNewIncome(Long id, String create, Incomes income, IncomesType newCategorie) {
+
+    public void createNewIncome(Long id, String create, Incomes income) {
         if(create == "conta") {
-
-        }else if (create == "categoria") {
-
+            Optional<Users> userId = usersRepository.findById(id);
+            if(userId.isPresent()) {
+                Users user = userId.get();
+                income.setUser(user);
+                incomesRepository.save(income);
+            }
+    }
+}
+    public void createNewExpense(Long id, String create, Expenses expense) {
+        if (create == "conta") {
+            Optional<Users> userId = usersRepository.findById(id);
+            if (userId.isPresent()) {
+                Users user = userId.get();
+                expense.setUser(user);
+                expensesRepository.save(expense);
+            }
         }
     }
 
-    public void createNewExpense(Long id, String create, Expenses expense, IncomesType newCategorie) {
+    public IncomesType createNewIncomeCategorie( String create, IncomesType newCategorie) {
+        if(create == "categoria"){
+            incomesTypeRepository.save(newCategorie);
+        }
+        return newCategorie;
+    }
+
+    public ExpensesType createNewExpenseCategorie(String create, ExpensesType newCategorie) {
+        if(create == "categoria"){
+            expensesTypesRepository.save(newCategorie);
+        }
+        return newCategorie;
     }
 }

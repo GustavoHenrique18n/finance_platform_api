@@ -2,6 +2,7 @@ package com.finance.api.controller;
 
 import com.finance.api.FinanceReference;
 import com.finance.api.entity.Expenses;
+import com.finance.api.entity.ExpensesType;
 import com.finance.api.entity.Incomes;
 import com.finance.api.entity.IncomesType;
 import com.finance.api.service.FinanceService;
@@ -32,12 +33,22 @@ public class FinancesController {
     }
 
     @PostMapping(path="contasareceber/{id}")
-    public void createIncome (@RequestParam(name="criar") String create,
+    public void createIncome (
+                              @RequestParam(name="criar") String create,
                               @PathVariable(name = "id") Long id,
-                              @RequestBody Incomes income,
-                              @RequestBody IncomesType newCategorie
+                              @RequestBody Incomes income
                              ){
-        financeService.createNewIncome(id, create, income,newCategorie);
+          financeService.createNewIncome(id, create, income);
+    }
+
+    @PutMapping(path="contasareceber/{id}")
+    @PostMapping(path="contasareceber/{id}")
+    public IncomesType createNewIncomeCategorie (
+                              @RequestParam(name="criar") String create,
+                              @PathVariable(name = "id") Long id,
+                              @RequestBody IncomesType newCategorie
+    ){
+        return financeService.createNewIncomeCategorie(create,newCategorie);
     }
 
     @GetMapping(path="contasapagar/{id}")
@@ -48,9 +59,16 @@ public class FinancesController {
     @PostMapping(path="contasapagar/{id}")
     public void createExpense (@RequestParam(name="criar") String create,
                                @PathVariable(name = "id") Long id,
-                               @RequestBody Expenses expense,
-                               @RequestBody IncomesType newCategorie
+                               @RequestBody Expenses expense
                               ){
-        financeService.createNewExpense(id, create, expense,newCategorie);
+        financeService.createNewExpense(id, create, expense);
+    }
+    @PostMapping(path="contasapagar/{id}")
+    public ExpensesType createNewExpenseCategorie (
+            @RequestParam(name="criar") String create,
+            @PathVariable(name = "id") Long id,
+            @RequestBody ExpensesType newCategorie
+    ){
+        return financeService.createNewExpenseCategorie(create,newCategorie);
     }
 }

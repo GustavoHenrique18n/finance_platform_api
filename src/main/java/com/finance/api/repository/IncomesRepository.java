@@ -10,11 +10,10 @@ import java.util.List;
 @Repository
 public interface IncomesRepository extends JpaRepository<Incomes, Long> {
 
-    @Query(value = "SELECT * FROM incomes WHERE incomes.user_id = ?1",
+    @Query(value = "SELECT * , DATE_FORMAT(incomes.preview_date, \"%d/%c/%Y\") ,  DATE_FORMAT(incomes.confirmed_date, \"%Y\") FROM incomes WHERE incomes.user_id = ?1",
            nativeQuery = true
     )
 
     List<Incomes> userFinanceIncome(Number user);
-
 
 }
