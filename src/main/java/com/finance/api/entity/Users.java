@@ -1,5 +1,6 @@
 package com.finance.api.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 
 import javax.persistence.*;
@@ -30,6 +31,7 @@ public class Users {
     private String email;
 
     @OneToMany(mappedBy = "user")
+    @JsonManagedReference
     private List<Incomes> incomes;
 
     @OneToMany(mappedBy = "user")

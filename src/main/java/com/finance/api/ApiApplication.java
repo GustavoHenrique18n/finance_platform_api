@@ -27,17 +27,5 @@ public class ApiApplication {
 
 
 
-	@Bean
-	CommandLineRunner commandLineRunner(
-			IncomesRepository  incomesRepository
-	){
-		return args -> {
 
-
-			 List<Incomes> income = incomesRepository.userFinanceIncome(6);
-
-
-
-		};
-	}
 }

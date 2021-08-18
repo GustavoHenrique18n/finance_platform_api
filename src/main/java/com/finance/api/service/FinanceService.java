@@ -3,11 +3,15 @@ package com.finance.api.service;
 import com.finance.api.FinanceReference;
 import com.finance.api.entity.*;
 import com.finance.api.repository.*;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class FinanceService {
     private final IncomesRepository incomesRepository;
     private final ExpensesRepository expensesRepository;
@@ -58,47 +62,89 @@ public class FinanceService {
         return financeReference;
     }
 
-    public List<Incomes> getIncomes(Long id) {
-        return incomesRepository.userFinanceIncome(id);
-    }
+    public List<Incomes> getIncomes(Long id) {return incomesRepository.userFinanceIncome(id);}
 
     public List<Expenses> getExpenses(Long id) {
         return expensesRepository.userFinanceExpense(id);
     }
 
+    public void createNewIncome( Incomes income) {incomesRepository.save(income);}
 
-    public void createNewIncome(Long id, String create, Incomes income) {
-        if(create == "conta") {
-            Optional<Users> userId = usersRepository.findById(id);
-            if(userId.isPresent()) {
-                Users user = userId.get();
-                income.setUser(user);
-                incomesRepository.save(income);
-            }
+    public void createNewExpense(Expenses expense) {expensesRepository.save(expense);}
+
+    public IncomesType createNewIncomeCategorie(  IncomesType newCategorie) {return incomesTypeRepository.save(newCategorie);}
+
+    public ExpensesType createNewExpenseCategorie(ExpensesType newCategorie) {return expensesTypesRepository.save(newCategorie);}
+
+
+    public void editAIncome(Long id, Incomes income) {
+        Incomes incomesId = incomesRepository.findById(id)
+                .orElseThrow(()-> new IllegalMonitorStateException("nao existe o id") );
+        incomesId.setNameIncome(income.getNameIncome());
+        incomesId.setPreviewDate(income.getPreviewDate());
+        incomesId.setPreviewValue(income.getPreviewValue());
+        incomesRepository.save(incomesId);
     }
-}
-    public void createNewExpense(Long id, String create, Expenses expense) {
-        if (create == "conta") {
-            Optional<Users> userId = usersRepository.findById(id);
-            if (userId.isPresent()) {
-                Users user = userId.get();
-                expense.setUser(user);
-                expensesRepository.save(expense);
-            }
+
+    public void editAExpense(Long id, Expenses expenses) {
+        Expenses expensesId = expensesRepository.findById(id)
+                .orElseThrow(()-> new IllegalMonitorStateException("nao existe o id") );
+        expensesId.setNameExpense(expenses.getNameExpense());
+        expensesId.setPreviewDate(expenses.getPreviewDate());
+        expensesId.setPreviewValue(expenses.getPreviewValue());
+        expensesRepository.save(expensesId);
+
+    }
+
+    public void payOneExpense(Long id, Expenses expenses) {
+        Expenses expensesId = expensesRepository.findById(id)
+                .orElseThrow(()-> new IllegalMonitorStateException("nao existe o id") );
+        Integer sumOfPayment = expenses.getConfirmedValue() + expensesId.getConfirmedValue();
+        expensesId.setConfirmedDate(expenses.getConfirmedDate());
+        expensesId.setConfirmedValue(sumOfPayment);
+        if(sumOfPayment <= expensesId.getPreviewValue() ){
+            expensesRepository.save(expensesId);
         }
     }
 
-    public IncomesType createNewIncomeCategorie( String create, IncomesType newCategorie) {
-        if(create == "categoria"){
-            incomesTypeRepository.save(newCategorie);
+    public void updateIncomeValues(Long id, Incomes incomes) {
+        Incomes incomesId = incomesRepository.findById(id)
+                .orElseThrow(()-> new IllegalMonitorStateException("nao existe o id") );
+        Integer sumOfPayment = incomes.getConfirmedValue() + incomesId.getConfirmedValue();
+        incomesId.setConfirmedDate(incomes.getConfirmedDate());
+        incomesId.setConfirmedValue(sumOfPayment);
+        if(sumOfPayment <= incomesId.getPreviewValue() ){
+            incomesRepository.save(incomesId);
         }
-        return newCategorie;
     }
 
-    public ExpensesType createNewExpenseCategorie(String create, ExpensesType newCategorie) {
-        if(create == "categoria"){
-            expensesTypesRepository.save(newCategorie);
+    public void deleteIncome(Long id) {
+        boolean Id = incomesRepository.existsById(id);
+        if(!Id){
+            throw new IllegalStateException("id nao encontrado");
         }
-        return newCategorie;
+
+        incomesRepository.deleteById(id);
+    }
+
+    public void deleteExpense(Long id) {
+        boolean Id = expensesRepository.existsById(id);
+        if(!Id){
+            throw new IllegalStateException("id nao encontrado");
+        }
+
+        expensesRepository.deleteById(id);
+    }
+
+    public void deleteMoreThanOneExpense(List<Expenses> expenses) {
+        for (Expenses i : expenses){
+            expensesRepository.deleteById(i.getId());
+        }
+    }
+
+    public void deleteMoreThanOneIncomes(List<Incomes> incomes) {
+        for (Incomes i : incomes){
+            incomesRepository.deleteById(i.getId());
+        }
     }
 }

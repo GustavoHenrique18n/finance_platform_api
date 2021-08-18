@@ -21,11 +21,5 @@ public class ReportController {
         reportsService.getAllreports(id);
     }
 
-    @PostMapping(path="/{id}")
-    public void createReport (@RequestParam(name="criar") Boolean create,
-                              @PathVariable(name = "id") Long id,
-                              @RequestBody Report report
-                             ){
-        reportsService.createNewReport(id, create , report);
-    }
+
 }

@@ -32,23 +32,19 @@ public class FinancesController {
         return financeService.getIncomes(id);
     }
 
-    @PostMapping(path="contasareceber/{id}")
-    public void createIncome (
-                              @RequestParam(name="criar") String create,
-                              @PathVariable(name = "id") Long id,
-                              @RequestBody Incomes income
-                             ){
-          financeService.createNewIncome(id, create, income);
+    @PostMapping(path="criarcontaareceber")
+    public void createIncome (@RequestBody Incomes income){
+          financeService.createNewIncome( income);
     }
 
-    @PutMapping(path="contasareceber/{id}")
-    @PostMapping(path="contasareceber/{id}")
-    public IncomesType createNewIncomeCategorie (
-                              @RequestParam(name="criar") String create,
-                              @PathVariable(name = "id") Long id,
-                              @RequestBody IncomesType newCategorie
-    ){
-        return financeService.createNewIncomeCategorie(create,newCategorie);
+    @PutMapping(path="contasareceber")
+    public void editValueIncome (@RequestBody Incomes income , @RequestParam(name = "edit") Long id ) {
+            financeService.editAIncome( id , income);
+    }
+
+    @PostMapping(path="criarnovacategoriareceita")
+    public IncomesType createNewIncomeCategorie (@RequestBody IncomesType newCategorie){
+        return financeService.createNewIncomeCategorie(newCategorie);
     }
 
     @GetMapping(path="contasapagar/{id}")
@@ -56,19 +52,48 @@ public class FinancesController {
         return financeService.getExpenses(id);
     }
 
-    @PostMapping(path="contasapagar/{id}")
-    public void createExpense (@RequestParam(name="criar") String create,
-                               @PathVariable(name = "id") Long id,
-                               @RequestBody Expenses expense
-                              ){
-        financeService.createNewExpense(id, create, expense);
+    @PostMapping(path="criarcontaapagar")
+    public void createExpense (@RequestBody Expenses expense){
+        financeService.createNewExpense(expense);
     }
-    @PostMapping(path="contasapagar/{id}")
-    public ExpensesType createNewExpenseCategorie (
-            @RequestParam(name="criar") String create,
-            @PathVariable(name = "id") Long id,
-            @RequestBody ExpensesType newCategorie
-    ){
-        return financeService.createNewExpenseCategorie(create,newCategorie);
+
+    @PostMapping(path="criarnovacategoriadespesa")
+    public ExpensesType createNewExpenseCategorie (@RequestBody ExpensesType newCategorie){
+        return financeService.createNewExpenseCategorie(newCategorie);
+    }
+
+    @PutMapping(path="contasapagar")
+    public void editValueExpense (@RequestBody Expenses expenses , @RequestParam(name = "edit") Long id ) {
+        financeService.editAExpense( id , expenses);
+    }
+
+    @PutMapping(path="atualizarvalores")
+    public void updateIncomesValues (@RequestBody Incomes incomes , @RequestParam(name = "pagar") Long id ) {
+        financeService.updateIncomeValues( id , incomes);
+    }
+
+    @PutMapping(path="pagarconta")
+    public void payOneExpense (@RequestBody Expenses expenses , @RequestParam(name = "pagar") Long id ) {
+        financeService.payOneExpense( id , expenses);
+    }
+
+    @DeleteMapping(path="deletareceita/{id}")
+    public void deleteIncome (@PathVariable(name = "id") Long id ) {
+        financeService.deleteIncome(id);
+    }
+
+    @DeleteMapping(path="deletardespesa/{id}")
+    public void deleteExpense (@PathVariable(name = "id") Long id ) {
+        financeService.deleteExpense(id);
+    }
+
+    @DeleteMapping(path="deletardespesas")
+    public void deleteMoreThanOneExpense (@RequestBody List<Expenses> expenses) {
+        financeService.deleteMoreThanOneExpense(expenses);
+    }
+
+    @DeleteMapping(path="deletareceitas")
+    public void deleteMoreThanOneIncomes (@RequestBody List<Incomes> incomes) {
+        financeService.deleteMoreThanOneIncomes(incomes);
     }
 }
