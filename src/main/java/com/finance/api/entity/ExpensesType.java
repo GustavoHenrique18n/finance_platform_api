@@ -1,4 +1,5 @@
 package com.finance.api.entity;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 
 import javax.persistence.*;
@@ -23,6 +24,7 @@ public class ExpensesType {
     private String categorieName;
 
     @OneToMany(mappedBy = "categorieExpense")
+    @JsonManagedReference(value="categorieExpense")
     private List<Expenses> expenses;
 
 }

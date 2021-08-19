@@ -3,13 +3,10 @@ package com.finance.api.service;
 import com.finance.api.FinanceReference;
 import com.finance.api.entity.*;
 import com.finance.api.repository.*;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
 import java.util.List;
-import java.util.Optional;
+
 
 @Service
 public class FinanceService {
@@ -99,9 +96,12 @@ public class FinanceService {
     public void payOneExpense(Long id, Expenses expenses) {
         Expenses expensesId = expensesRepository.findById(id)
                 .orElseThrow(()-> new IllegalMonitorStateException("nao existe o id") );
-        Integer sumOfPayment = expenses.getConfirmedValue() + expensesId.getConfirmedValue();
+        Integer beforeConfirmedValue = expensesId.getConfirmedValue() == null ? 0 : expensesId.getConfirmedValue();
+
+        Integer sumOfPayment = expenses.getConfirmedValue() + beforeConfirmedValue;
         expensesId.setConfirmedDate(expenses.getConfirmedDate());
         expensesId.setConfirmedValue(sumOfPayment);
+
         if(sumOfPayment <= expensesId.getPreviewValue() ){
             expensesRepository.save(expensesId);
         }
@@ -110,9 +110,12 @@ public class FinanceService {
     public void updateIncomeValues(Long id, Incomes incomes) {
         Incomes incomesId = incomesRepository.findById(id)
                 .orElseThrow(()-> new IllegalMonitorStateException("nao existe o id") );
-        Integer sumOfPayment = incomes.getConfirmedValue() + incomesId.getConfirmedValue();
+        Integer beforeConfirmedValue = incomesId.getConfirmedValue() == null ? 0 : incomesId.getConfirmedValue();
+
+        Integer sumOfPayment = incomes.getConfirmedValue() + beforeConfirmedValue;
         incomesId.setConfirmedDate(incomes.getConfirmedDate());
         incomesId.setConfirmedValue(sumOfPayment);
+
         if(sumOfPayment <= incomesId.getPreviewValue() ){
             incomesRepository.save(incomesId);
         }

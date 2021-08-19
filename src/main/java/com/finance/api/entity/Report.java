@@ -1,4 +1,5 @@
 package com.finance.api.entity;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 
 import javax.persistence.*;
@@ -34,6 +35,7 @@ public class Report {
 
     @ManyToOne
     @JoinColumn(name = "user_id" , nullable = false)
+    @JsonBackReference(value="userReports")
     private Users user;
 
 }

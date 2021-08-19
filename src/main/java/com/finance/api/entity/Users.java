@@ -31,13 +31,15 @@ public class Users {
     private String email;
 
     @OneToMany(mappedBy = "user")
-    @JsonManagedReference
+    @JsonManagedReference(value = "userIncome")
     private List<Incomes> incomes;
 
     @OneToMany(mappedBy = "user")
+    @JsonManagedReference(value="userExpense")
     private List<Expenses> expenses;
 
     @OneToMany(mappedBy = "user")
+    @JsonManagedReference(value="userReports")
     private List<Report> reports;
 
 }

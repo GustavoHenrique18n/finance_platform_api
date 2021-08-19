@@ -25,7 +25,7 @@ public class UsersController {
     }
 
     @PostMapping(path = "login")
-    public void authUser (@RequestBody Users user) {
-        userService.auth(user);
+    public String authUser (@RequestBody Users user) {
+        return userService.auth(user);
     }
 }

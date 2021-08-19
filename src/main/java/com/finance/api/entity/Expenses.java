@@ -1,4 +1,5 @@
 package com.finance.api.entity;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
@@ -36,10 +37,12 @@ public class Expenses {
 
     @ManyToOne
     @JoinColumn(name = "expense_type_id" , nullable = false)
+    @JsonBackReference(value="categorieExpense")
     private ExpensesType categorieExpense;
 
     @ManyToOne
     @JoinColumn(name = "user_id" , nullable = false)
+    @JsonBackReference(value="userExpense")
     private Users user;
 
 }

@@ -37,11 +37,12 @@ public class Incomes {
 
     @ManyToOne
     @JoinColumn(name = "income_type_id" , nullable = false)
+    @JsonBackReference(value="categorieIncome")
     private IncomesType categorieIncome;
 
     @ManyToOne
     @JoinColumn(name = "user_id" , nullable = false)
-    @JsonBackReference
+    @JsonBackReference(value="userIncome")
     private Users user;
 
 }
