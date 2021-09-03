@@ -1,42 +1,48 @@
 package com.finance.api.service;
 
 import com.finance.api.entity.Users;
+import com.finance.api.exception.ApiRequestException;
 import com.finance.api.repository.UsersRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
-@Service
-public class UserService {
+@Service @RequiredArgsConstructor
+public class UserService implements UserDetailsService {
 
     private final UsersRepository usersRepository;
-
-    @Autowired
-    public UserService(UsersRepository usersRepository) {
-        this.usersRepository = usersRepository;
-    }
+    private final PasswordEncoder passwordEncoder;
 
     public void register(Users user) {
         Optional<Users> exists = usersRepository.findUserByEmail(user.getEmail());
         if(exists.isPresent()){
-            throw new IllegalStateException("email already exists");
+            throw new ApiRequestException("id nao encontrado");
         }
+
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         usersRepository.save(user);
     }
 
-    public String auth(Users user) {
-        Optional<Users> exists = usersRepository.findUserByEmail(user.getEmail());
-        if(exists.isPresent()){
-            Users alreadyRegisterUser = exists.get();
-            if(user.getPassword().equals(alreadyRegisterUser.getPassword())){
-                return "logado";
-            }else {
-                return "senha errada";
-            }
-        }else {
-            return "usuario inexistente";
-        }
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+
+        Optional<Users> userExists =
+                Optional.ofNullable(usersRepository.findUserByEmail(email))
+                .orElseThrow(()-> new UsernameNotFoundException(" email nao encontrado "));
+
+                Users user = userExists.get();
+                List<GrantedAuthority> role_user = AuthorityUtils.createAuthorityList("ROLE_USER");
+                return new User(user.getEmail() , user.getPassword() , role_user);
     }
 
 }

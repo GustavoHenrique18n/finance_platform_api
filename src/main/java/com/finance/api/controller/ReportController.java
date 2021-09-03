@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(path = "relatorios")
+@RequestMapping(path = "perfil")
 public class ReportController {
     private final ReportsService reportsService;
 
@@ -16,10 +16,8 @@ public class ReportController {
         this.reportsService = reportsService;
     }
 
-    @GetMapping(path = "/{id}")
+    @GetMapping(path = "/relatorios/{id}")
     public void getAllReports (@PathVariable(name = "id") Long id) {
         reportsService.getAllreports(id);
     }
-
-
 }

@@ -2,32 +2,21 @@ package com.finance.api.service;
 
 import com.finance.api.FinanceReference;
 import com.finance.api.entity.*;
+import com.finance.api.exception.ApiRequestException;
 import com.finance.api.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
 
 @Service
+@RequiredArgsConstructor
 public class FinanceService {
     private final IncomesRepository incomesRepository;
     private final ExpensesRepository expensesRepository;
     private final ExpensesTypesRepository expensesTypesRepository;
     private final IncomesTypeRepository incomesTypeRepository;
     private final UsersRepository usersRepository;
-
-    @Autowired
-    public FinanceService(IncomesRepository incomesRepository,
-                          ExpensesRepository expensesRepository,
-                          ExpensesTypesRepository expensesTypesRepository,
-                          IncomesTypeRepository incomesTypeRepository,
-                          UsersRepository usersRepository) {
-        this.incomesRepository = incomesRepository;
-        this.expensesRepository = expensesRepository;
-        this.expensesTypesRepository = expensesTypesRepository;
-        this.incomesTypeRepository = incomesTypeRepository;
-        this.usersRepository = usersRepository;
-    }
 
     public FinanceReference getTotalOfFinance(Long id) {
         FinanceReference financeReference = new FinanceReference(0,0,0,0);
@@ -76,7 +65,7 @@ public class FinanceService {
 
     public void editAIncome(Long id, Incomes income) {
         Incomes incomesId = incomesRepository.findById(id)
-                .orElseThrow(()-> new IllegalMonitorStateException("nao existe o id") );
+                .orElseThrow(()->  new ApiRequestException("id nao encontrado") );
         incomesId.setNameIncome(income.getNameIncome());
         incomesId.setPreviewDate(income.getPreviewDate());
         incomesId.setPreviewValue(income.getPreviewValue());
@@ -85,7 +74,7 @@ public class FinanceService {
 
     public void editAExpense(Long id, Expenses expenses) {
         Expenses expensesId = expensesRepository.findById(id)
-                .orElseThrow(()-> new IllegalMonitorStateException("nao existe o id") );
+                .orElseThrow(()->  new ApiRequestException("id nao encontrado") );
         expensesId.setNameExpense(expenses.getNameExpense());
         expensesId.setPreviewDate(expenses.getPreviewDate());
         expensesId.setPreviewValue(expenses.getPreviewValue());
@@ -95,7 +84,7 @@ public class FinanceService {
 
     public void payOneExpense(Long id, Expenses expenses) {
         Expenses expensesId = expensesRepository.findById(id)
-                .orElseThrow(()-> new IllegalMonitorStateException("nao existe o id") );
+                .orElseThrow(()->  new ApiRequestException("id nao encontrado") );
         Integer beforeConfirmedValue = expensesId.getConfirmedValue() == null ? 0 : expensesId.getConfirmedValue();
 
         Integer sumOfPayment = expenses.getConfirmedValue() + beforeConfirmedValue;
@@ -109,7 +98,7 @@ public class FinanceService {
 
     public void updateIncomeValues(Long id, Incomes incomes) {
         Incomes incomesId = incomesRepository.findById(id)
-                .orElseThrow(()-> new IllegalMonitorStateException("nao existe o id") );
+                .orElseThrow(()->  new ApiRequestException("id nao encontrado") );
         Integer beforeConfirmedValue = incomesId.getConfirmedValue() == null ? 0 : incomesId.getConfirmedValue();
 
         Integer sumOfPayment = incomes.getConfirmedValue() + beforeConfirmedValue;
@@ -124,7 +113,7 @@ public class FinanceService {
     public void deleteIncome(Long id) {
         boolean Id = incomesRepository.existsById(id);
         if(!Id){
-            throw new IllegalStateException("id nao encontrado");
+            throw  new ApiRequestException("id nao encontrado");
         }
 
         incomesRepository.deleteById(id);
@@ -133,7 +122,7 @@ public class FinanceService {
     public void deleteExpense(Long id) {
         boolean Id = expensesRepository.existsById(id);
         if(!Id){
-            throw new IllegalStateException("id nao encontrado");
+            throw  new ApiRequestException("id nao encontrado");
         }
 
         expensesRepository.deleteById(id);
