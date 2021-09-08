@@ -1,7 +1,9 @@
 package com.finance.api.service;
 
 import com.finance.api.entity.Users;
-import com.finance.api.exception.ApiRequestException;
+import com.finance.api.exception.authRequestException;
+import com.finance.api.regex.RegexUserEmail;
+import com.finance.api.regex.RegexUserPassword;
 import com.finance.api.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -25,7 +27,14 @@ public class UserService implements UserDetailsService {
     public void register(Users user) {
         Optional<Users> exists = usersRepository.findUserByEmail(user.getEmail());
         if(exists.isPresent()){
-            throw new ApiRequestException("id nao encontrado");
+            throw new authRequestException("usuario ja registrado");
+        }
+
+        Boolean emailVerificated = RegexUserEmail.userEmail(user.getEmail());
+        Boolean passwordVerificated = RegexUserPassword.userPassword(user.getPassword());
+
+        if(!passwordVerificated || !emailVerificated){
+            throw new authRequestException("As credencias inseridas não seguem o esperado verifique os campos");
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -35,7 +44,6 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-
         Optional<Users> userExists =
                 Optional.ofNullable(usersRepository.findUserByEmail(email))
                 .orElseThrow(()-> new UsernameNotFoundException(" email nao encontrado "));

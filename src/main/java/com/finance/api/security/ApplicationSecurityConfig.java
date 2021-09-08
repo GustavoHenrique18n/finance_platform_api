@@ -25,7 +25,11 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
         http
             .authorizeRequests()
             .antMatchers( "/perfil/**").hasRole("USER")
-            .and().addFilter(null)
+            .and()
+            .formLogin()
+            .defaultSuccessUrl("/perfil/1")
+            .failureUrl("/perfil/1")
+            .and()
             .csrf().disable();
     }
 

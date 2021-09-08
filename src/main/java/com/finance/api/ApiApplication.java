@@ -19,13 +19,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 @SpringBootApplication
 public class ApiApplication {
 
 	public static void main(String[] args) {
+
 		SpringApplication.run(ApiApplication.class, args);
 	}
+
 
 	@Bean
 	public PasswordEncoder encoder() {
