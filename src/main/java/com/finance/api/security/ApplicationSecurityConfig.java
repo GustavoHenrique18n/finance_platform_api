@@ -1,6 +1,8 @@
 package com.finance.api.security;
 
 //import com.finance.api.filter.CustomAuthenticationFilter;
+import com.finance.api.filter.CustomAuthFilter;
+import com.finance.api.filter.CustomAuthorizationFilter;
 import com.finance.api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -26,10 +29,8 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
             .authorizeRequests()
             .antMatchers( "/perfil/**").hasRole("USER")
             .and()
-            .formLogin()
-            .defaultSuccessUrl("/perfil/1")
-            .failureUrl("/perfil/1")
-            .and()
+            .addFilter(new CustomAuthFilter(authenticationManagerBean()))
+            .addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
             .csrf().disable();
     }
 

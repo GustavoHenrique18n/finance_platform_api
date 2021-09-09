@@ -44,13 +44,16 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Optional<Users> userExists =
-                Optional.ofNullable(usersRepository.findUserByEmail(email))
-                .orElseThrow(()-> new UsernameNotFoundException(" email nao encontrado "));
+        Optional<Users> userExists = usersRepository.findUserByEmail(email);
 
-                Users user = userExists.get();
-                List<GrantedAuthority> role_user = AuthorityUtils.createAuthorityList("ROLE_USER");
-                return new User(user.getEmail() , user.getPassword() , role_user);
+        if(userExists.isPresent()){
+            Users user = userExists.get();
+            List<GrantedAuthority> role_user = AuthorityUtils.createAuthorityList("ROLE_USER");
+            return new User(user.getEmail() , user.getPassword() , role_user);
+        }
+
+        throw new UsernameNotFoundException(" credencial invalida ");
+
     }
 
 }

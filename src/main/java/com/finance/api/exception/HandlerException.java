@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
     @ControllerAdvice
     public class HandlerException {
 
-        @ExceptionHandler(value ={ ApiRequestExceptionId.class } )
+        @ExceptionHandler(value ={ ApiRequestExceptionId.class, authRequestException.class })
         public ResponseEntity<Object> handleRequest (ApiRequestExceptionId e ) {
             ApiExceptionHandle apiExceptionHandle =  new ApiExceptionHandle(
                     e.getMessage(),
@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
             return new ResponseEntity<>(apiExceptionHandle, HttpStatus.NOT_FOUND);
         }
 
-        @ExceptionHandler(value ={ authRequestException.class } )
         public ResponseEntity<Object> registerException (authRequestException e ) {
             ApiExceptionHandle apiExceptionHandle =  new ApiExceptionHandle(
                     e.getMessage(),

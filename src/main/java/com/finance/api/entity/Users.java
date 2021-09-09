@@ -1,6 +1,7 @@
 package com.finance.api.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.finance.api.LoggedUser;
 import lombok.*;
 
 import javax.persistence.*;
@@ -12,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(exclude="id")
-public class Users {
+public class Users  {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="id" , nullable = false)

@@ -1,12 +1,16 @@
 package com.finance.api.service;
 
 import com.finance.api.FinanceReference;
+import com.finance.api.LoggedUser;
 import com.finance.api.entity.*;
 import com.finance.api.exception.ApiRequestExceptionId;
+import com.finance.api.exception.authRequestException;
 import com.finance.api.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -19,44 +23,89 @@ public class FinanceService {
     private final UsersRepository usersRepository;
 
     public FinanceReference getTotalOfFinance(Long id) {
-        FinanceReference financeReference = new FinanceReference(0,0,0,0);
-        Integer totalIncome = financeReference.getTotalIncome();
-        Integer totalIncomePayment = financeReference.getTotalIncomePayment();
-        Integer totalExpenses = financeReference.getTotalExpense();
-        Integer totalExpensePayment = financeReference.getTotalExpensePayment();
+        User loggedUser = LoggedUser.getUserLogged();
+        Optional<Users> UserloggedOnce = usersRepository.findUserByEmail(loggedUser.getUsername());
+        if(UserloggedOnce.isPresent() ){
+            if(UserloggedOnce.get().getId().equals(id)){
+                FinanceReference financeReference = new FinanceReference(0,0,0,0);
+                Integer totalIncome = financeReference.getTotalIncome();
+                Integer totalIncomePayment = financeReference.getTotalIncomePayment();
+                Integer totalExpenses = financeReference.getTotalExpense();
+                Integer totalExpensePayment = financeReference.getTotalExpensePayment();
 
-        List<Incomes> income = incomesRepository.userFinanceIncome(id);
-        List<Expenses> expenses = expensesRepository.userFinanceExpense(id);
+                List<Incomes> income = incomesRepository.userFinanceIncome(id);
+                List<Expenses> expenses = expensesRepository.userFinanceExpense(id);
 
-        for(Incomes i : income) {
-            totalIncome += i.getPreviewValue();
-            financeReference.setTotalIncome(totalIncome);
-            if(i.getConfirmedValue() != null){
-                totalIncomePayment += i.getConfirmedValue();
-                financeReference.setTotalIncomePayment(totalIncomePayment);
+                for(Incomes i : income) {
+                    totalIncome += i.getPreviewValue();
+                    financeReference.setTotalIncome(totalIncome);
+                    if(i.getConfirmedValue() != null){
+                        totalIncomePayment += i.getConfirmedValue();
+                        financeReference.setTotalIncomePayment(totalIncomePayment);
+                    }
+                }
+
+                for(Expenses i : expenses) {
+                    totalExpenses += i.getPreviewValue();
+                    financeReference.setTotalExpense(totalExpenses);
+                    if(i.getConfirmedValue() != null){
+                        totalExpensePayment += i.getConfirmedValue();
+                        financeReference.setTotalExpensePayment(totalExpensePayment);
+                    }
+                }
+                return financeReference;
             }
+            throw new authRequestException("acesso negado por favor informe suas credenciais");
         }
-
-        for(Expenses i : expenses) {
-            totalExpenses += i.getPreviewValue();
-            financeReference.setTotalExpense(totalExpenses);
-            if(i.getConfirmedValue() != null){
-                totalExpensePayment += i.getConfirmedValue();
-                financeReference.setTotalExpensePayment(totalExpensePayment);
-            }
-        }
-        return financeReference;
+        throw new ApiRequestExceptionId("id nao encontrado");
     }
 
-    public List<Incomes> getIncomes(Long id) {return incomesRepository.userFinanceIncome(id);}
+    public List<Incomes> getIncomes(Long id) {
+        User loggedUser = LoggedUser.getUserLogged();
+        Optional<Users> UserloggedOnce = usersRepository.findUserByEmail(loggedUser.getUsername());
+        if(UserloggedOnce.isPresent()) {
+            if(UserloggedOnce.get().getId().equals(id)){
+                return incomesRepository.userFinanceIncome(id);
+            }
+            throw new authRequestException("acesso negado por favor informe suas credenciais");
+        }
+        throw new ApiRequestExceptionId("id nao encontrado");
+    }
 
     public List<Expenses> getExpenses(Long id) {
-        return expensesRepository.userFinanceExpense(id);
+        User loggedUser = LoggedUser.getUserLogged();
+        Optional<Users> UserloggedOnce = usersRepository.findUserByEmail(loggedUser.getUsername());
+        if (UserloggedOnce.isPresent()) {
+            if (UserloggedOnce.get().getId().equals(id)) {
+                return expensesRepository.userFinanceExpense(id);
+            }
+            throw new authRequestException("acesso negado por favor informe suas credenciais");
+        }
+        throw new ApiRequestExceptionId("id nao encontrado");
     }
 
-    public void createNewIncome( Incomes income) {incomesRepository.save(income);}
+    public void createNewIncome( Incomes income) {
+        User loggedUser = LoggedUser.getUserLogged();
+        Optional<Users> UserloggedOnce = usersRepository.findUserByEmail(loggedUser.getUsername());
 
-    public void createNewExpense(Expenses expense) {expensesRepository.save(expense);}
+        if(UserloggedOnce.isPresent()){
+            Users user = UserloggedOnce.get();
+            income.setUser(user);
+            incomesRepository.save(income);
+        }
+
+    }
+
+    public void createNewExpense(Expenses expense) {
+        User loggedUser = LoggedUser.getUserLogged();
+        Optional<Users> UserloggedOnce = usersRepository.findUserByEmail(loggedUser.getUsername());
+
+        if(UserloggedOnce.isPresent()) {
+            Users user = UserloggedOnce.get();
+            expense.setUser(user);
+            expensesRepository.save(expense);
+        }
+    }
 
     public IncomesType createNewIncomeCategorie(  IncomesType newCategorie) {return incomesTypeRepository.save(newCategorie);}
 
