@@ -23,88 +23,80 @@ public class FinanceService {
     private final UsersRepository usersRepository;
 
     public FinanceReference getTotalOfFinance(Long id) {
-        User loggedUser = LoggedUser.getUserLogged();
-        Optional<Users> UserloggedOnce = usersRepository.findUserByEmail(loggedUser.getUsername());
-        if(UserloggedOnce.isPresent() ){
-            if(UserloggedOnce.get().getId().equals(id)){
-                FinanceReference financeReference = new FinanceReference(0,0,0,0);
-                Integer totalIncome = financeReference.getTotalIncome();
-                Integer totalIncomePayment = financeReference.getTotalIncomePayment();
-                Integer totalExpenses = financeReference.getTotalExpense();
-                Integer totalExpensePayment = financeReference.getTotalExpensePayment();
+        Long loggedUserId = LoggedUser.convertStringtoLong(LoggedUser.getUserLoggedInId());
 
-                List<Incomes> income = incomesRepository.userFinanceIncome(id);
-                List<Expenses> expenses = expensesRepository.userFinanceExpense(id);
+        if(loggedUserId.equals(id)){
+            FinanceReference financeReference = new FinanceReference(0,0,0,0);
+            Integer totalIncome = financeReference.getTotalIncome();
+            Integer totalIncomePayment = financeReference.getTotalIncomePayment();
+            Integer totalExpenses = financeReference.getTotalExpense();
+            Integer totalExpensePayment = financeReference.getTotalExpensePayment();
 
-                for(Incomes i : income) {
-                    totalIncome += i.getPreviewValue();
-                    financeReference.setTotalIncome(totalIncome);
-                    if(i.getConfirmedValue() != null){
-                        totalIncomePayment += i.getConfirmedValue();
-                        financeReference.setTotalIncomePayment(totalIncomePayment);
-                    }
+            List<Incomes> income = incomesRepository.userFinanceIncome(id);
+            List<Expenses> expenses = expensesRepository.userFinanceExpense(id);
+
+            for(Incomes i : income) {
+                totalIncome += i.getPreviewValue();
+                financeReference.setTotalIncome(totalIncome);
+                if(i.getConfirmedValue() != null){
+                    totalIncomePayment += i.getConfirmedValue();
+                    financeReference.setTotalIncomePayment(totalIncomePayment);
                 }
-
-                for(Expenses i : expenses) {
-                    totalExpenses += i.getPreviewValue();
-                    financeReference.setTotalExpense(totalExpenses);
-                    if(i.getConfirmedValue() != null){
-                        totalExpensePayment += i.getConfirmedValue();
-                        financeReference.setTotalExpensePayment(totalExpensePayment);
-                    }
-                }
-                return financeReference;
             }
-            throw new authRequestException("acesso negado por favor informe suas credenciais");
+
+            for(Expenses i : expenses) {
+                totalExpenses += i.getPreviewValue();
+                financeReference.setTotalExpense(totalExpenses);
+                if(i.getConfirmedValue() != null){
+                    totalExpensePayment += i.getConfirmedValue();
+                    financeReference.setTotalExpensePayment(totalExpensePayment);
+                }
+            }
+            return financeReference;
         }
-        throw new ApiRequestExceptionId("id nao encontrado");
+
+        throw new authRequestException("acesso negado por favor informe suas credenciais");
+
     }
 
     public List<Incomes> getIncomes(Long id) {
-        User loggedUser = LoggedUser.getUserLogged();
-        Optional<Users> UserloggedOnce = usersRepository.findUserByEmail(loggedUser.getUsername());
-        if(UserloggedOnce.isPresent()) {
-            if(UserloggedOnce.get().getId().equals(id)){
-                return incomesRepository.userFinanceIncome(id);
-            }
-            throw new authRequestException("acesso negado por favor informe suas credenciais");
+        Long loggedUser = LoggedUser.convertStringtoLong(LoggedUser.getUserLoggedInId());
+
+        if(loggedUser.equals(id)){
+            return incomesRepository.userFinanceIncome(id);
         }
-        throw new ApiRequestExceptionId("id nao encontrado");
+
+        throw new authRequestException("acesso negado por favor informe suas credenciais");
     }
 
     public List<Expenses> getExpenses(Long id) {
-        User loggedUser = LoggedUser.getUserLogged();
-        Optional<Users> UserloggedOnce = usersRepository.findUserByEmail(loggedUser.getUsername());
-        if (UserloggedOnce.isPresent()) {
-            if (UserloggedOnce.get().getId().equals(id)) {
-                return expensesRepository.userFinanceExpense(id);
-            }
-            throw new authRequestException("acesso negado por favor informe suas credenciais");
-        }
-        throw new ApiRequestExceptionId("id nao encontrado");
-    }
+        Long loggedUser = LoggedUser.convertStringtoLong(LoggedUser.getUserLoggedInId());
 
-    public void createNewIncome( Incomes income) {
-        User loggedUser = LoggedUser.getUserLogged();
-        Optional<Users> UserloggedOnce = usersRepository.findUserByEmail(loggedUser.getUsername());
-
-        if(UserloggedOnce.isPresent()){
-            Users user = UserloggedOnce.get();
-            income.setUser(user);
-            incomesRepository.save(income);
+        if (loggedUser.equals(id)) {
+            return expensesRepository.userFinanceExpense(id);
         }
+        throw new authRequestException("acesso negado por favor informe suas credenciais");
 
     }
 
-    public void createNewExpense(Expenses expense) {
-        User loggedUser = LoggedUser.getUserLogged();
-        Optional<Users> UserloggedOnce = usersRepository.findUserByEmail(loggedUser.getUsername());
+     public void createNewIncome( Incomes income) {
+         Long loggedUserId = LoggedUser.convertStringtoLong(LoggedUser.getUserLoggedInId());
 
-        if(UserloggedOnce.isPresent()) {
-            Users user = UserloggedOnce.get();
-            expense.setUser(user);
-            expensesRepository.save(expense);
-        }
+         Users UserloggedOnce = usersRepository.findUserById(loggedUserId);
+
+         income.setUser(UserloggedOnce);
+         incomesRepository.save(income);
+
+    }
+
+     public void createNewExpense(Expenses expense) {
+         Long loggedUserId = LoggedUser.convertStringtoLong(LoggedUser.getUserLoggedInId());
+
+         Users UserloggedOnce = usersRepository.findUserById(loggedUserId);
+
+         expense.setUser(UserloggedOnce);
+         expensesRepository.save(expense);
+
     }
 
     public IncomesType createNewIncomeCategorie(  IncomesType newCategorie) {return incomesTypeRepository.save(newCategorie);}

@@ -3,8 +3,8 @@ package com.finance.api.filter;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.finance.api.LoggedUser;
-import com.finance.api.entity.Users;
 import com.finance.api.exception.authRequestException;
+import com.finance.api.repository.UsersRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -21,9 +21,11 @@ import java.util.Date;
 
 public class CustomAuthFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
+    private final UsersRepository usersRepository;
 
-    public CustomAuthFilter(AuthenticationManager authenticationManager) {
+    public CustomAuthFilter(AuthenticationManager authenticationManager, UsersRepository usersRepository) {
         this.authenticationManager = authenticationManager;
+        this.usersRepository = usersRepository;
     }
 
     @Override
@@ -39,9 +41,12 @@ public class CustomAuthFilter extends UsernamePasswordAuthenticationFilter {
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication auth) throws IOException, ServletException {
         User user= (User)auth.getPrincipal();
         Algorithm algorithm = Algorithm.HMAC256("authtoken".getBytes());
+        String userId = Long.toString(usersRepository.findIdByEmail(user.getUsername()));
+
         String access_token =
                 JWT.create()
                 .withSubject(user.getUsername())
+                .withIssuer(userId)
                 .withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000))
                 .sign(algorithm);
         String refresh_token =
@@ -52,7 +57,7 @@ public class CustomAuthFilter extends UsernamePasswordAuthenticationFilter {
 
         response.setHeader("token",access_token);
 
-        LoggedUser.setUserLogged(user);
+
 
     }
 

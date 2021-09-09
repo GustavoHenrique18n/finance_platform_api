@@ -3,9 +3,9 @@ package com.finance.api.security;
 //import com.finance.api.filter.CustomAuthenticationFilter;
 import com.finance.api.filter.CustomAuthFilter;
 import com.finance.api.filter.CustomAuthorizationFilter;
+import com.finance.api.repository.UsersRepository;
 import com.finance.api.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,6 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserService userService;
+    private final UsersRepository usersRepository;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -29,7 +30,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
             .authorizeRequests()
             .antMatchers( "/perfil/**").hasRole("USER")
             .and()
-            .addFilter(new CustomAuthFilter(authenticationManagerBean()))
+            .addFilter(new CustomAuthFilter(authenticationManagerBean(), usersRepository))
             .addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
             .csrf().disable();
     }
