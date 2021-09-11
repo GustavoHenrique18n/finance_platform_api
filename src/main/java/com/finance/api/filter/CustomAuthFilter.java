@@ -2,7 +2,7 @@ package com.finance.api.filter;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.finance.api.LoggedUser;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.finance.api.exception.authRequestException;
 import com.finance.api.repository.UsersRepository;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,6 +18,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 public class CustomAuthFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
@@ -55,9 +59,12 @@ public class CustomAuthFilter extends UsernamePasswordAuthenticationFilter {
                 .withExpiresAt(new Date(System.currentTimeMillis() + 30 * 60 * 1000))
                 .sign(algorithm);
 
-        response.setHeader("token",access_token);
+        Map<String, String> tokens = new HashMap<>();
+        tokens.put("access_token" , access_token);
+        tokens.put("refresh_token" , refresh_token);
+        response.setContentType(APPLICATION_JSON_VALUE);
 
-
+        new ObjectMapper().writeValue(response.getOutputStream() , tokens);
 
     }
 
@@ -66,4 +73,5 @@ public class CustomAuthFilter extends UsernamePasswordAuthenticationFilter {
 
         throw new authRequestException("erro ao logar verifique suas credencias");
     }
+
 }

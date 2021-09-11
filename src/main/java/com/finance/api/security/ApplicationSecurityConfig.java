@@ -3,17 +3,22 @@ package com.finance.api.security;
 //import com.finance.api.filter.CustomAuthenticationFilter;
 import com.finance.api.filter.CustomAuthFilter;
 import com.finance.api.filter.CustomAuthorizationFilter;
+import com.finance.api.filter.CustomOauth2AuthFilter;
 import com.finance.api.repository.UsersRepository;
+import com.finance.api.service.CustomOauth2UserService;
 import com.finance.api.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -23,12 +28,24 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserService userService;
     private final UsersRepository usersRepository;
+    private final CustomOauth2UserService customOauth2UserService;
+    private final CustomOauth2AuthFilter customOauth2AuthFilter;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
             .authorizeRequests()
-            .antMatchers( "/perfil/**").hasRole("USER")
+                .antMatchers( "/perfil/**").hasRole("USER");
+            http.sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .and()
+            .exceptionHandling()
+                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+            .and()
+            .oauth2Login()
+                .userInfoEndpoint().userService(customOauth2UserService)
+            .and()
+                .successHandler(customOauth2AuthFilter)
             .and()
             .addFilter(new CustomAuthFilter(authenticationManagerBean(), usersRepository))
             .addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)

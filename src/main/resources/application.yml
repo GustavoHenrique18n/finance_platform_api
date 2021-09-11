@@ -4,10 +4,11 @@ spring:
       client:
         registration:
           google:
-            clientId: 169837248065-rb1gfdue2k3uh2irg1bqlcm32slh634i.apps.googleusercontent.com
-            clientSecret: ripGOPPQhzCQFbxuWpDHVscg
-
-
+            client-id: 169837248065-rb1gfdue2k3uh2irg1bqlcm32slh634i.apps.googleusercontent.com
+            client-secret: ripGOPPQhzCQFbxuWpDHVscg
+            scope:
+              - email
+              - profile
 server:
   port: 8080
 
