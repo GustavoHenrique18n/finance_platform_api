@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,7 +42,6 @@ public class UserService implements UserDetailsService {
         usersRepository.save(user);
     }
 
-
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Optional<Users> userExists = usersRepository.findUserByEmail(email);
@@ -56,4 +56,21 @@ public class UserService implements UserDetailsService {
 
     }
 
+
+    public void updateUserLogged(String email) {
+        Optional<Users> userFound = usersRepository.findUserByEmail(email);
+        if(userFound.isPresent()){
+            Users user = userFound.get();
+            user.setEmail(email);
+            usersRepository.save(user);
+        }
+    }
+
+    public void saveAUserLoggedWithGoogle(String email ,String name) {
+        Users user = new Users();
+        user.setEmail(email);
+        user.setName(name);
+        user.setPassword(passwordEncoder.encode("loggedin"));
+        usersRepository.save(user);
+    }
 }
