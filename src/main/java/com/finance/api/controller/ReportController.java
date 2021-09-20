@@ -6,6 +6,8 @@ import com.finance.api.service.ReportsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(path = "perfil")
 public class ReportController {
@@ -17,7 +19,12 @@ public class ReportController {
     }
 
     @GetMapping(path = "/relatorios/{id}")
-    public void getAllReports (@PathVariable(name = "id") Long id) {
-        reportsService.getAllreports(id);
+    public List<Report> getAllReports (@PathVariable(name = "id") Long id) {
+        return reportsService.getAllreports(id);
+    }
+
+    @PostMapping(path = "/relatorios/gerarrelatorio")
+    public void makeANewReport (@RequestBody Report report) {
+        reportsService.makeANewReport(report);
     }
 }
