@@ -2,6 +2,7 @@ package com.finance.api.service;
 
 import com.finance.api.entity.Users;
 import com.finance.api.exception.authRequestException;
+import com.finance.api.filter.RegisterEmitJwt;
 import com.finance.api.regex.RegexUserEmail;
 import com.finance.api.regex.RegexUserPassword;
 import com.finance.api.repository.UsersRepository;
@@ -14,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.security.Principal;
 import java.util.List;
@@ -25,7 +27,8 @@ public class UserService implements UserDetailsService {
     private final UsersRepository usersRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public void register(Users user) {
+
+    public String register(Users user) {
         Optional<Users> exists = usersRepository.findUserByEmail(user.getEmail());
         if(exists.isPresent()){
             throw new authRequestException("usuario ja registrado");
@@ -40,6 +43,8 @@ public class UserService implements UserDetailsService {
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         usersRepository.save(user);
+        RegisterEmitJwt jwt = new RegisterEmitJwt(usersRepository);
+        return  jwt.emit(user);
     }
 
     @Override

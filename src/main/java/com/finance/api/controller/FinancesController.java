@@ -92,4 +92,9 @@ public class FinancesController {
     public void deleteMoreThanOneIncomes (@RequestBody List<Incomes> incomes) {
         financeService.deleteMoreThanOneIncomes(incomes);
     }
+
+    @GetMapping(path="filtrocontas")
+    public List<Incomes> filter () {
+        return financeService.filterDateByUser();
+    }
 }

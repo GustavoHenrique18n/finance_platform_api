@@ -65,7 +65,6 @@ public class CustomAuthFilter extends UsernamePasswordAuthenticationFilter {
         response.setContentType(APPLICATION_JSON_VALUE);
 
         new ObjectMapper().writeValue(response.getOutputStream() , tokens);
-
     }
 
     @Override

@@ -11,6 +11,7 @@ public class ApiApplication {
 
 
 	public static void main(String[] args) {
+		System.out.println(320.20 + 300);
 		SpringApplication.run(ApiApplication.class, args);
 	}
 

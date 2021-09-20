@@ -7,10 +7,8 @@ import com.finance.api.exception.ApiRequestExceptionId;
 import com.finance.api.exception.authRequestException;
 import com.finance.api.repository.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.Optional;
 
 
 @Service
@@ -21,6 +19,8 @@ public class FinanceService {
     private final ExpensesTypesRepository expensesTypesRepository;
     private final IncomesTypeRepository incomesTypeRepository;
     private final UsersRepository usersRepository;
+
+    private Boolean filter = false;
 
     public FinanceReference getTotalOfFinance(Long id) {
         Long loggedUserId = LoggedUser.convertStringtoLong(LoggedUser.getUserLoggedInId());
@@ -63,6 +63,7 @@ public class FinanceService {
         Long loggedUser = LoggedUser.convertStringtoLong(LoggedUser.getUserLoggedInId());
 
         if(loggedUser.equals(id)){
+
             return incomesRepository.userFinanceIncome(id);
         }
 
@@ -179,5 +180,11 @@ public class FinanceService {
         for (Incomes i : incomes){
             incomesRepository.deleteById(i.getId());
         }
+    }
+
+    public List<Incomes> filterDateByUser() {
+        Long loggedUserId = LoggedUser.convertStringtoLong(LoggedUser.getUserLoggedInId());
+        return incomesRepository.filterUserIncome(loggedUserId);
+
     }
 }
