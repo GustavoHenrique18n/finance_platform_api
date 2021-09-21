@@ -3,6 +3,9 @@ package com.finance.api.service;
 import com.finance.api.entity.Expenses;
 import com.finance.api.entity.Incomes;
 import com.finance.api.entity.Report;
+import com.finance.api.entity.Users;
+import com.finance.api.repository.ReportRepository;
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -11,17 +14,17 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+@RequiredArgsConstructor
 public class exportArchive {
     HSSFRow row;
+    private final ReportRepository reportRepository;
 
-    public void exportArchive(Report report , List<Incomes> incomes , List<Expenses> expenses){
+    public void exportArchive(Report report , List<Incomes> incomes , List<Expenses> expenses , HttpServletResponse response , Users user){
         HSSFWorkbook workBook = new HSSFWorkbook();
         CellStyle style = workBook.createCellStyle();
         style.setAlignment(HorizontalAlignment.CENTER);
@@ -287,12 +290,35 @@ public class exportArchive {
             }
 
             try{
-                FileOutputStream out = new FileOutputStream(new File(report.getNameReport()+".xlsx"));
+                File fileName = new File(System.currentTimeMillis() + report.getNameReport() + ".xlsx");
+                FileOutputStream out = new FileOutputStream("/home/gustavo/Downloads/api/exportsArchives/"+ fileName);
+                report.setFilename(fileName.getName());
+                report.setType(".xlsx");
+                report.setUser(user);
+                reportRepository.save(report);
+
                 workBook.write(out);
+
+                response.setContentType("application/vnd.ms-excel");
+                response.setHeader("Content-Disposition", "attachment; filename=" +fileName.getName());
+                response.setHeader("Content-Transfer-Encoding", "binary");
+
+                try {
+                    BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream());
+                    FileInputStream fis = new FileInputStream("/home/gustavo/Downloads/api/exportsArchives/"+fileName.getName());
+                    int len;
+                    byte[] buf = new byte[1024];
+                    while((len = fis.read(buf)) > 0) {
+                        bos.write(buf,0,len);
+                    }
+                        bos.close();
+                        response.flushBuffer();
+                    }catch (IOException e){
+                    e.printStackTrace();
+                }
+
                 out.close();
-                System.out.println("arquivo gerada");
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
+
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -10,8 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class ApiApplication {
 
 
-	public static void main(String[] args) {
-		System.out.println(320.20 + 300);
+	public static void main(String[] args)  {
 		SpringApplication.run(ApiApplication.class, args);
 	}
 

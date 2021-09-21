@@ -11,24 +11,12 @@ import com.finance.api.repository.IncomesRepository;
 import com.finance.api.repository.ReportRepository;
 import com.finance.api.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.HorizontalAlignment;
-import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,21 +37,35 @@ public class ReportsService {
         throw new authRequestException("acesso negado por favor informe suas credenciais");
     }
 
-    public void makeANewReport(Report report) {
+    public void makeANewReport(Report report , HttpServletResponse response) {
         Long loggedUserId = LoggedUser.convertStringtoLong(LoggedUser.getUserLoggedInId());
         Users UserloggedOnce = usersRepository.findUserById(loggedUserId);
         List<Incomes> incomes = incomesRepository.userFinanceIncome(loggedUserId);
         List<Expenses> expenses = expensesRepository.userFinanceExpense(loggedUserId);
-        List<Report> reports = reportRepository.findAllByUserId(loggedUserId);
 
-        List<Report> reportsFiltered = reports.stream().filter(c -> c.getNameReport().equals(report.getNameReport())).collect(Collectors.toList());
+        exportArchive export = new exportArchive(reportRepository);
+        export.exportArchive(report , incomes , expenses, response , UserloggedOnce);
 
-        if(reportsFiltered.size() > 0){
-            exportArchive export = new exportArchive();
-            export.exportArchive(report , incomes , expenses);
-        }else {
-            report.setUser(UserloggedOnce);
-            reportRepository.save(report);
+    }
+
+    public void downloadFile(String fileName, HttpServletResponse response) {
+
+        if (fileName.contains(".xlsx")) response.setContentType("application/vnd.ms-excel");
+        response.setHeader("Content-Disposition", "attachment; filename=" +fileName);
+        response.setHeader("Content-Transfer-Encoding", "binary");
+        try {
+            BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream());
+            FileInputStream fis = new FileInputStream("/home/gustavo/Downloads/api/exportsArchives/"+fileName);
+            int len;
+            byte[] buf = new byte[1024];
+            while((len = fis.read(buf)) > 0) {
+                bos.write(buf,0,len);
+            }
+            bos.close();
+            response.flushBuffer();
+        }catch (IOException e){
+
+            e.printStackTrace();
         }
     }
 }

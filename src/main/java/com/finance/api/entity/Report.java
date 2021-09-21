@@ -36,6 +36,12 @@ public class Report {
     @JsonFormat(pattern = "dd/MM/yyyy" , shape = JsonFormat.Shape.STRING)
     private LocalDate finalDate;
 
+    @Column(name = "type" , nullable = false)
+    private String type;
+
+    @Column(name = "filename" , nullable = false)
+    private String filename;
+
     @ManyToOne
     @JoinColumn(name = "user_id" , nullable = false)
     @JsonBackReference(value="userReports")

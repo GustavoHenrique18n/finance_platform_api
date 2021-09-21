@@ -6,6 +6,10 @@ import com.finance.api.service.ReportsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -24,7 +28,14 @@ public class ReportController {
     }
 
     @PostMapping(path = "/relatorios/gerarrelatorio")
-    public void makeANewReport (@RequestBody Report report) {
-        reportsService.makeANewReport(report);
+    @ResponseBody
+    public void makeANewReport (@RequestBody Report report,HttpServletResponse response) {
+        reportsService.makeANewReport(report , response);
+    }
+
+    @GetMapping(path = "/file/{fileName}")
+    @ResponseBody
+    public void downloadFile (@PathVariable(name = "fileName") String fileName, HttpServletResponse response) {
+        reportsService.downloadFile(fileName,response);
     }
 }
