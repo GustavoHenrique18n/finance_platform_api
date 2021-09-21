@@ -1,5 +1,6 @@
 package com.finance.api.entity;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
 import javax.persistence.*;
@@ -19,19 +20,27 @@ public class Report {
     private Long id;
 
     @Column(name="get_with_incomes" , nullable = false)
-    private String nameExpense;
+    private Boolean withIncomes;
 
     @Column(name="get_with_expenses" , nullable = false)
-    private LocalDate previewDate;
+    private Boolean withExpenses;
 
     @Column(name="name_report")
-    private Integer previewValue;
+    private String nameReport;
 
     @Column(name="start_date" , nullable = false)
+    @JsonFormat(pattern = "dd/MM/yyyy" , shape = JsonFormat.Shape.STRING)
     private LocalDate startDate;
 
     @Column(name = "final_date" , nullable = false)
+    @JsonFormat(pattern = "dd/MM/yyyy" , shape = JsonFormat.Shape.STRING)
     private LocalDate finalDate;
+
+    @Column(name = "type" , nullable = false)
+    private String type;
+
+    @Column(name = "filename" , nullable = false)
+    private String filename;
 
     @ManyToOne
     @JoinColumn(name = "user_id" , nullable = false)
